@@ -26,8 +26,14 @@ jobs:
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Build and push backend image
+      - name: Build Docker image (backend only)
         run: |
           docker build -t devconnect-backend ./back-end
-          docker tag devconnect-backend:latest 215572308714.dkr.ecr.ap-southeast-2.amazonaws.com/devconnect-backend
-          docker push YOUR_ACCOUNT_ID.dkr.ecr.ap-southeast-2.amazonaws.com/devconnect-backend:latest
+
+      - name: Tag Docker image
+        run: |
+          docker tag devconnect-backend:latest 215572308714.dkr.ecr.ap-southeast-2.amazonaws.com/devconnect-backend:latest
+
+      - name: Push Docker image to ECR
+        run: |
+          docker push 215572308714.dkr.ecr.ap-southeast-2.amazonaws.com/devconnect-backend:latest
