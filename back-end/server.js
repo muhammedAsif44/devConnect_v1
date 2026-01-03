@@ -30,10 +30,23 @@ const mailRoutes = require("./routes/mailRoutes"); // Add mail routes
 // =======================
 const app = express();
 const server = http.createServer(app); // Required for Socket.IO
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://yourdomain.com", // REPLACE THIS with actual domain after buying one
+  process.env.CLIENT_URL,
+].filter(Boolean);
+
 const io = new Server(server, {
   cors: {
-    origin: [process.env.CLIENT_URL || "http://localhost:5173"],
- 
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   },
 });
@@ -42,7 +55,14 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   })
 );
@@ -65,8 +85,16 @@ app.use("/api/chat", chatRoutes);
 app.use("/api/mail", mailRoutes); // Add mail routes
 
 // =======================
-// ✅ Ping Test
+// ✅ Health Check (AWS Helper)
 // =======================
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    status: "OK",
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString(),
+  });
+});
+// Keep ping as an alias if needed
 app.get("/ping", (req, res) => res.json({ message: "pong" }));
 
 // =======================

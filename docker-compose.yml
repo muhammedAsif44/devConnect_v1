@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./back-end
+    ports:
+      - "5000:5000"
+    env_file:
+      - ./back-end/.env
+    # No depends_on since we are using external or local mongo not managed by compose
+
