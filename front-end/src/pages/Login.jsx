@@ -60,10 +60,10 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 font-sans flex items-center justify-center">
-      <div className="w-full max-w-5xl flex flex-col md:flex-row bg-white shadow-2xl rounded-2xl overflow-hidden m-4">
+    <div className="min-h-screen bg-gray-50 font-sans flex items-center justify-center p-4">
+      <div className="w-full max-w-5xl flex flex-col md:flex-row bg-white shadow-2xl rounded-2xl overflow-hidden">
         {/* Left Branding */}
-        <div className="w-full md:w-2/5 bg-[#043873] text-white p-12 flex flex-col justify-center items-center md:items-start text-center md:text-left">
+        <div className="w-full md:w-2/5 bg-[#043873] text-white p-8 md:p-12 flex flex-col justify-center items-center md:items-start text-center md:text-left">
           <div className="bg-white text-[#043873] font-bold text-xl rounded-md px-4 py-2 mb-6">
             DC
           </div>
@@ -74,7 +74,7 @@ export default function Login() {
         </div>
 
         {/* Right Form Section */}
-        <div className="w-full md:w-3/5 p-8 sm:p-12 flex flex-col justify-center">
+        <div className="w-full md:w-3/5 p-6 sm:p-12 flex flex-col justify-center">
           <div className="max-w-md mx-auto w-full">
             <h2 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h2>
             <p className="text-gray-600 mb-8">Sign in to your DevConnect account.</p>

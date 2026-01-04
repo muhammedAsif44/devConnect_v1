@@ -102,11 +102,11 @@ export default function Signup() {
   };
 
   return (
-    <div className="h-screen bg-gray-50 flex items-center justify-center font-sans overflow-hidden">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center font-sans overflow-y-auto p-4">
       <Toaster position="top-right" reverseOrder={false} /> {/* ✅ working toaster */}
-      <div className="w-full max-w-5xl h-[90vh] max-h-[700px] flex flex-col md:flex-row bg-white shadow-2xl rounded-2xl m-4 overflow-visible">
+      <div className="w-full max-w-5xl md:h-[90vh] md:max-h-[700px] flex flex-col md:flex-row bg-white shadow-2xl rounded-2xl overflow-hidden">
         {/* Branding Panel */}
-        <div className="w-full md:w-2/5 bg-[#043873] text-white p-10 flex flex-col justify-center items-center md:items-start text-center md:text-left rounded-l-2xl">
+        <div className="w-full md:w-2/5 bg-[#043873] text-white p-8 md:p-10 flex flex-col justify-center items-center md:items-start text-center md:text-left">
           <div className="bg-white text-[#043873] font-bold text-xl rounded-md px-4 py-2 mb-6">DC</div>
           <h1 className="text-3xl font-bold mb-3">DevConnect</h1>
           <p className="text-gray-200 text-base leading-relaxed">
@@ -115,7 +115,7 @@ export default function Signup() {
         </div>
 
         {/* Form Panel */}
-        <div className="w-full md:w-3/5 p-8 sm:p-10 flex flex-col overflow-visible">
+        <div className="w-full md:w-3/5 p-6 sm:p-10 flex flex-col h-full overflow-hidden">
           <div className="max-w-md mx-auto w-full flex flex-col h-full">
             {!showOtp ? (
               <>
@@ -187,11 +187,10 @@ export default function Signup() {
 
                         {/* Mentor Fields */}
                         <div
-                          className={`transition-all duration-300 ease-in-out ${
-                            values.role === "mentor"
+                          className={`transition-all duration-300 ease-in-out ${values.role === "mentor"
                               ? "max-h-[2000px] opacity-100 mt-2"
                               : "max-h-0 opacity-0 overflow-hidden mt-0"
-                          }`}
+                            }`}
                         >
                           <InputField
                             label="Experience"
@@ -211,11 +210,10 @@ export default function Signup() {
                                     return (
                                       <label
                                         key={slotValue}
-                                        className={`cursor-pointer text-sm px-3 py-1 rounded-full border transition-all duration-200 ${
-                                          selected
+                                        className={`cursor-pointer text-sm px-3 py-1 rounded-full border transition-all duration-200 ${selected
                                             ? "bg-[#043873] text-white border-[#043873]"
                                             : "bg-white border-gray-300 hover:bg-gray-100"
-                                        }`}
+                                          }`}
                                       >
                                         <input
                                           type="checkbox"
