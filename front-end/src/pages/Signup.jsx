@@ -102,7 +102,7 @@ export default function Signup() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center font-sans overflow-y-auto p-4">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center font-sans p-4">
       <Toaster position="top-right" reverseOrder={false} /> {/* ✅ working toaster */}
       <div className="w-full max-w-5xl md:h-[90vh] md:max-h-[700px] flex flex-col md:flex-row bg-white shadow-2xl rounded-2xl overflow-hidden">
         {/* Branding Panel */}
@@ -115,16 +115,17 @@ export default function Signup() {
         </div>
 
         {/* Form Panel */}
-        <div className="w-full md:w-3/5 p-6 sm:p-10 flex flex-col h-full overflow-hidden">
+        <div className="w-full md:w-3/5 p-6 sm:p-10 flex flex-col h-full bg-white">
           <div className="max-w-md mx-auto w-full flex flex-col h-full">
             {!showOtp ? (
               <>
-                <div>
+                <div className="mb-4">
                   <h2 className="text-3xl font-bold text-gray-900 mb-2">Create Account</h2>
-                  <p className="text-gray-600 mb-6">Sign up to get started.</p>
+                  <p className="text-gray-600">Sign up to get started.</p>
                 </div>
 
-                <div className="flex-grow overflow-y-auto pr-4 -mr-4">
+                {/* Mobile: Allow full page scroll (remove overflow-y-auto/height constraints) */}
+                <div className="flex-grow md:overflow-y-auto md:pr-4 md:-mr-4">
                   <Formik
                     initialValues={{
                       name: "",
@@ -188,8 +189,8 @@ export default function Signup() {
                         {/* Mentor Fields */}
                         <div
                           className={`transition-all duration-300 ease-in-out ${values.role === "mentor"
-                              ? "max-h-[2000px] opacity-100 mt-2"
-                              : "max-h-0 opacity-0 overflow-hidden mt-0"
+                            ? "max-h-[2000px] opacity-100 mt-2"
+                            : "max-h-0 opacity-0 overflow-hidden mt-0"
                             }`}
                         >
                           <InputField
@@ -211,8 +212,8 @@ export default function Signup() {
                                       <label
                                         key={slotValue}
                                         className={`cursor-pointer text-sm px-3 py-1 rounded-full border transition-all duration-200 ${selected
-                                            ? "bg-[#043873] text-white border-[#043873]"
-                                            : "bg-white border-gray-300 hover:bg-gray-100"
+                                          ? "bg-[#043873] text-white border-[#043873]"
+                                          : "bg-white border-gray-300 hover:bg-gray-100"
                                           }`}
                                       >
                                         <input

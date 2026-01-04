@@ -49,14 +49,16 @@ export default function PrivateRoute({ children, role }) {
   }, [initialized]);
 
   // If we've initialized and determined not authenticated, redirect immediately
+  // Add a small safety check to ensure we don't redirect if we are currently fetching profile
   if (!loading && initialized && !isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
-  // Loading gate
+  // Loading gate - show nothing or spinner while initializing
   if (loading || !initialized) {
     return <div className="p-8 text-center">Loading...</div>;
   }
 
+  // Role check
   if (role && user && ![role].flat().includes(user.role)) {
     toast.error("Access denied");
     return <Navigate to="/login" replace />;
