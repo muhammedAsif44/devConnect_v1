@@ -246,27 +246,17 @@ exports.logout = async (req, res) => {
     }
 
     // Clear both tokens (new system)
-    res.cookie("accessToken", "", {
+    const isProduction = process.env.NODE_ENV === "production";
+    const cookieOptions = {
       httpOnly: true,
-      expires: new Date(0),
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "Strict",
-    });
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "strict",
+      path: "/", // Matches setting path
+    };
 
-    res.cookie("refreshToken", "", {
-      httpOnly: true,
-      expires: new Date(0),
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "Strict",
-    });
-
-    // Clear old jwt cookie (backward compatibility)
-    res.cookie("jwt", "", {
-      httpOnly: true,
-      expires: new Date(0),
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "Strict",
-    });
+    res.clearCookie("accessToken", cookieOptions);
+    res.clearCookie("refreshToken", cookieOptions);
+    res.clearCookie("jwt", cookieOptions); // Backward compatibility
 
     res.status(200).json({ message: "Logged out successfully" });
   } catch (err) {

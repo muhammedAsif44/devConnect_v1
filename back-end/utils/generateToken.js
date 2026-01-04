@@ -28,6 +28,7 @@ const generateTokens = (res, userId, role) => {
     httpOnly: true,
     secure: isProduction, // Secure is REQUIRED for SameSite=None
     sameSite: isProduction ? "none" : "strict", // Cross-site requires None
+    path: "/", // Ensure path is root
   };
 
   // Set Access Token Cookie
