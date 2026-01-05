@@ -7,7 +7,7 @@ import toast from "react-hot-toast";
 import { getPosts, createPost } from "../../api/postsApi";
 
 export default function HomeFeed() {
-  const { user } = useAuthStore();
+  const { user, initialized } = useAuthStore();
   const [newPost, setNewPost] = useState("");
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
@@ -16,10 +16,12 @@ export default function HomeFeed() {
 
   // Fetch posts on mount
   useEffect(() => {
-    getPosts()
-      .then((res) => setPosts(res.data.posts || []))
-      .catch(() => toast.error("Failed to fetch posts"));
-  }, []);
+    if (initialized && user) {
+      getPosts()
+        .then((res) => setPosts(res.data.posts || []))
+        .catch(() => toast.error("Failed to fetch posts"));
+    }
+  }, [initialized, user]);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -178,11 +180,10 @@ export default function HomeFeed() {
 
           <Button
             variant="primary"
-            className={`text-xs md:text-sm px-4 md:px-6 py-2 rounded-lg font-semibold transition-all ${
-              !newPost.trim() && !imageFile
+            className={`text-xs md:text-sm px-4 md:px-6 py-2 rounded-lg font-semibold transition-all ${!newPost.trim() && !imageFile
                 ? "opacity-50 cursor-not-allowed"
                 : "hover:shadow-md"
-            }`}
+              }`}
             onClick={handlePostSubmit}
             disabled={!newPost.trim() && !imageFile}
           >

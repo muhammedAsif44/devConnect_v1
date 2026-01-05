@@ -18,6 +18,11 @@ const useAuthStore = create((set, get) => ({
   initialized: false,
   isPremium: false,
 
+  checkAuth: async () => {
+    // Alias for fetchUserProfile to serve as the main initialization point
+    await get().fetchUserProfile();
+  },
+
   fetchUserProfile: async (force = false) => {
     const { initialized } = get();
     if (initialized && !force) return;

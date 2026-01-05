@@ -33,7 +33,7 @@ const sidebarItems = [
 ];
 
 export default function MentorDashboard() {
-  const { user } = useAuthStore(); // ✅ Zustand
+  const { user, initialized } = useAuthStore(); // ✅ Zustand
   const [activeTab, setActiveTab] = useState("home");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
@@ -62,7 +62,11 @@ export default function MentorDashboard() {
 
 
 
-  // ✅ Handle user not found
+  // ✅ Handle user not found (Wait for init)
+  if (!initialized) {
+    return <div className="p-10 text-center font-semibold text-[#032f60]">Loading Mentor Panel...</div>;
+  }
+
   if (!user) {
     return <Navigate to="/login" />;
   }
@@ -112,8 +116,8 @@ export default function MentorDashboard() {
               <button
                 key={item.slug}
                 className={`block w-full text-left px-4 py-3 rounded-lg mb-1 transition ${activeTab === item.slug
-                    ? "bg-white text-[#032f60] font-semibold"
-                    : "hover:bg-blue-900 hover:text-white"
+                  ? "bg-white text-[#032f60] font-semibold"
+                  : "hover:bg-blue-900 hover:text-white"
                   }`}
                 onClick={() => {
                   setActiveTab(item.slug);

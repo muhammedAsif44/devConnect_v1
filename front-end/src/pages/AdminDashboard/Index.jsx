@@ -185,7 +185,7 @@ export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [sidebarExpanded, setSidebarExpanded] = useState(true);
   const [profileDropdown, setProfileDropdown] = useState(false);
-  const { user, logout: authLogout, loading } = useAuthStore();
+  const { user, logout: authLogout, loading, initialized } = useAuthStore();
   const [dashboardData, setDashboardData] = useState(null);
   const [users, setUsers] = useState([]);
   const [pendingMentors, setPendingMentors] = useState([]);
@@ -209,16 +209,16 @@ export default function AdminDashboard() {
 
   // Fetch dashboard stats
   useEffect(() => {
-    if (activeTab === "dashboard") {
+    if (activeTab === "dashboard" && initialized && user) {
       api.get("/admin/dashboard-stats")
         .then(res => setDashboardData(res.data))
         .catch(() => toast.error("Failed to load dashboard data"));
     }
-  }, [activeTab]);
+  }, [activeTab, initialized, user]);
 
   // Fetch users
   useEffect(() => {
-    if (activeTab === "users") {
+    if (activeTab === "users" && initialized && user) {
       const fetchUsers = async () => {
         try {
           const params = { page: currentPage, limit: pagination.limit };
@@ -237,11 +237,11 @@ export default function AdminDashboard() {
       };
       fetchUsers();
     }
-  }, [activeTab, currentPage, pagination.limit, filterRole, searchTerm]);
+  }, [activeTab, currentPage, pagination.limit, filterRole, searchTerm, initialized, user]);
 
   // Fetch pending mentors
   useEffect(() => {
-    if (activeTab === "approveMentors") {
+    if (activeTab === "approveMentors" && initialized && user) {
       const fetchMentors = async () => {
         try {
           const res = await api.get("/admin/pending-mentors");
@@ -252,7 +252,7 @@ export default function AdminDashboard() {
       };
       fetchMentors();
     }
-  }, [activeTab]);
+  }, [activeTab, initialized, user]);
 
   const handleEditSave = async () => {
     if (!editUser) return;
@@ -336,8 +336,8 @@ export default function AdminDashboard() {
 
   return (
     <div className="flex h-screen w-screen bg-gray-100 overflow-hidden">
-      <Toaster 
-        position="top-right" 
+      <Toaster
+        position="top-right"
         toastOptions={{
           style: {
             background: '#032f60',
@@ -361,9 +361,8 @@ export default function AdminDashboard() {
         }}
       />
       <aside
-        className={`${
-          sidebarExpanded ? "w-64" : "w-20"
-        } bg-linear-to-b from-slate-900 to-slate-800 text-white flex flex-col transition-all duration-300 shadow-xl`}
+        className={`${sidebarExpanded ? "w-64" : "w-20"
+          } bg-linear-to-b from-slate-900 to-slate-800 text-white flex flex-col transition-all duration-300 shadow-xl`}
       >
         <div className="p-4 border-b border-slate-700 flex items-center justify-between">
           {sidebarExpanded && <h1 className="text-xl font-bold">DevConnect</h1>}
@@ -379,11 +378,10 @@ export default function AdminDashboard() {
             <button
               key={item.tab}
               onClick={() => setActiveTab(item.tab)}
-              className={`w-full flex items-center gap-4 px-3 py-3 rounded-lg transition-all font-medium text-sm ${
-                activeTab === item.tab
-                  ? "bg-blue-600 text-white shadow-lg"
-                  : "text-gray-300 hover:bg-slate-700"
-              }`}
+              className={`w-full flex items-center gap-4 px-3 py-3 rounded-lg transition-all font-medium text-sm ${activeTab === item.tab
+                ? "bg-blue-600 text-white shadow-lg"
+                : "text-gray-300 hover:bg-slate-700"
+                }`}
             >
               <item.icon size={20} />
               {sidebarExpanded && <span>{item.name}</span>}
@@ -403,12 +401,12 @@ export default function AdminDashboard() {
             {activeTab === "dashboard"
               ? "Dashboard Overview"
               : activeTab === "users"
-              ? "Manage Users & Mentors"
-              : activeTab === "approveMentors"
-              ? "Approve Mentors"
-              : activeTab === "content"
-              ? "Content Moderation"
-              : activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
+                ? "Manage Users & Mentors"
+                : activeTab === "approveMentors"
+                  ? "Approve Mentors"
+                  : activeTab === "content"
+                    ? "Content Moderation"
+                    : activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
           </h2>
           <div className="flex items-center gap-4 relative">
             <button className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg relative">
@@ -497,9 +495,9 @@ export default function AdminDashboard() {
           {activeTab === "payments" && <Payments />}
         </main>
       </div>
-      <Modal 
+      <Modal
         isOpen={!!editUser}
-        title="Edit User" 
+        title="Edit User"
         onClose={() => {
           setEditUser(null);
           setModalError("");
@@ -507,45 +505,45 @@ export default function AdminDashboard() {
         onConfirm={handleEditSave}
         confirmText="Save Changes"
       >
-          {modalError && <p className="text-red-600 text-sm mb-4 p-3 bg-red-50 rounded">{modalError}</p>}
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium mb-2">Full Name</label>
-              <input
-                type="text"
-                value={editForm.name}
-                onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                className="w-full p-2 border rounded-md"
-                placeholder="User Name"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Email</label>
-              <input
-                type="email"
-                value={editForm.email}
-                onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
-                className="w-full p-2 border rounded-md"
-                placeholder="user@example.com"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Role</label>
-              <select
-                value={editForm.role}
-                onChange={(e) => setEditForm({ ...editForm, role: e.target.value })}
-                className="w-full p-2 border rounded-md"
-              >
-                <option value="developer">Developer</option>
-                <option value="mentor">Mentor</option>
-                <option value="admin">Admin</option>
-              </select>
-            </div>
+        {modalError && <p className="text-red-600 text-sm mb-4 p-3 bg-red-50 rounded">{modalError}</p>}
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium mb-2">Full Name</label>
+            <input
+              type="text"
+              value={editForm.name}
+              onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+              className="w-full p-2 border rounded-md"
+              placeholder="User Name"
+            />
           </div>
+          <div>
+            <label className="block text-sm font-medium mb-2">Email</label>
+            <input
+              type="email"
+              value={editForm.email}
+              onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+              className="w-full p-2 border rounded-md"
+              placeholder="user@example.com"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-2">Role</label>
+            <select
+              value={editForm.role}
+              onChange={(e) => setEditForm({ ...editForm, role: e.target.value })}
+              className="w-full p-2 border rounded-md"
+            >
+              <option value="developer">Developer</option>
+              <option value="mentor">Mentor</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+        </div>
       </Modal>
-      <Modal 
+      <Modal
         isOpen={!!deleteUser}
-        title="Delete User" 
+        title="Delete User"
         onClose={() => {
           setDeleteUser(null);
           setModalError("");
@@ -554,8 +552,8 @@ export default function AdminDashboard() {
         confirmText="Delete"
         isDanger
       >
-          {modalError && <p className="text-red-600 text-sm mb-4 p-3 bg-red-50 rounded">{modalError}</p>}
-          <p>Are you sure you want to delete user <strong>{deleteUser?.name}</strong>? This action cannot be undone.</p>
+        {modalError && <p className="text-red-600 text-sm mb-4 p-3 bg-red-50 rounded">{modalError}</p>}
+        <p>Are you sure you want to delete user <strong>{deleteUser?.name}</strong>? This action cannot be undone.</p>
       </Modal>
     </div>
   );

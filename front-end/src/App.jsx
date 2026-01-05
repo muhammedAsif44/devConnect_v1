@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import PrivateRoute from "./components/PrivateRoute";
@@ -12,7 +12,15 @@ import LandingPage from "./pages/LandingPage";
 import PendingApproval from "./pages/PendingApproval";
 import ProfilePage from "./pages/Profile/ProfilePage";
 
+import useAuthStore from "./ZustandStore/useAuthStore";
+
 function App() {
+  const { checkAuth } = useAuthStore();
+
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
+
   return (
     <BrowserRouter>
       <Toaster
