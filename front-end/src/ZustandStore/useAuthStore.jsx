@@ -105,18 +105,16 @@ const useAuthStore = create((set, get) => ({
   login: async (values) => {
     set({ loading: true, error: null });
     try {
-      const res = await api.post("/auth/login", values, { withCredentials: true });
-      const user = res?.data?.user;
-      if (!user) throw new Error("Login failed: no user returned");
+      // 1. Perform Login (sets cookies)
+      await api.post("/auth/login", values, { withCredentials: true });
 
-      user.status = getMentorStatus(user);
-      set({
-        user,
-        isAuthenticated: true,
-        isPremium: user?.isPremium || false,
-        loading: false,
-        initialized: true,
-      });
+      // 2. 🔴 Force backend session verification for cookie readiness
+      // This ensures we don't proceed until cookies are actually usable
+      await get().checkAuth();
+
+      // 3. Get confirmed user from state
+      const { user } = get();
+      if (!user) throw new Error("Login verification failed");
 
       // Show role-specific welcome messages (only one toast)
       if (user.role === "admin") {
@@ -129,12 +127,19 @@ const useAuthStore = create((set, get) => ({
         toast.success("Login successful!", { duration: 3000 });
       }
 
-      // await get().fetchUserProfile(true); // removed to prevent blocking redirect
       return user;
     } catch (err) {
+      console.error("Login flow error:", err);
       const msg = err.response?.data?.message || "Login failed";
       toast.error(msg);
-      set({ error: msg, loading: false });
+      // Ensure we reset state on failure
+      set({
+        user: null,
+        isAuthenticated: false,
+        initialized: true, // Mark initialized so we don't get stuck loading
+        error: msg,
+        loading: false
+      });
       throw err;
     }
   },
