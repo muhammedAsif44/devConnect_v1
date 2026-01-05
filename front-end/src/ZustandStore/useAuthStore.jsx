@@ -110,7 +110,7 @@ const useAuthStore = create((set, get) => ({
 
       // 2. 🔴 Force backend session verification for cookie readiness
       // This ensures we don't proceed until cookies are actually usable
-      await get().checkAuth();
+      await get().fetchUserProfile(true);
 
       // 3. Get confirmed user from state
       const { user } = get();
