@@ -114,10 +114,10 @@ exports.getUserProfile = async (req, res) => {
       return res.status(404).json({ error: "User not found" });
     }
 
-  const allPosts = await Post.find({ userId }) // userId is the profile user's id
-  .sort({ createdAt: -1 })
-  .populate("userId", "name username profilePhoto role isPremium premiumExpiresAt")
-  .populate("comments.userId", "name username profilePhoto role isPremium premiumExpiresAt");
+    const allPosts = await Post.find({ userId }) // userId is the profile user's id
+      .sort({ createdAt: -1 })
+      .populate("userId", "name username profilePhoto role isPremium premiumExpiresAt")
+      .populate("comments.userId", "name username profilePhoto role isPremium premiumExpiresAt");
 
     // Map recent posts with like/comment counts
     const recentPosts = allPosts.slice(0, 3).map((post) => ({
@@ -167,22 +167,78 @@ exports.getUserProfile = async (req, res) => {
 // Update user profile (allow only self, admin update, robust validation recommended)
 exports.updateUserProfile = async (req, res) => {
   try {
+    const {
+      name,
+      email,
+      username,
+      bio,
+      skills,
+      location,
+      links,
+      mentorProfile,
+      interests,
+      profilePhoto
+    } = req.body;
+    // Validate user is authorized
     if (req.user._id.toString() !== req.params.id && req.user.role !== "admin") {
       return res.status(403).json({ message: "Not authorized" });
     }
-    const allowedFields = [
-      "name", "bio", "location", "profilePhoto",
-      "skills", "links", "mentorProfile", "interests"
-      // Add more allowed fields here
-    ];
+
+    // 1️⃣ SANITIZATION & VALIDATION HELPER
+    const sanitize = (value, allowEmpty = false) => {
+      // If undefined, return undefined (don't update)
+      // If null, convert to undefined (prevent saving null)
+      if (value === undefined || value === null) return undefined;
+      // If string, trim it
+      if (typeof value === "string") {
+        const trimmed = value.trim();
+        // If allowEmpty is true, return trimmed even if empty string
+        // If allowEmpty is false, return undefined if empty string
+        return (allowEmpty || trimmed.length > 0) ? trimmed : undefined;
+      }
+      return value;
+    };
+
     const updateData = {};
-    allowedFields.forEach(field => {
-      if (req.body[field] !== undefined) updateData[field] = req.body[field];
-    });
+
+    // 2️⃣ PROCESS FIELDS
+    if (name !== undefined) {
+      const cleanName = sanitize(name);
+      if (!cleanName) return res.status(400).json({ message: "Name is required" });
+      updateData.name = cleanName;
+    }
+
+    if (username !== undefined) {
+      const cleanUsername = sanitize(username);
+      if (!cleanUsername) return res.status(400).json({ message: "Username cannot be empty" });
+      updateData.username = cleanUsername;
+    }
+
+    if (email !== undefined) {
+      const cleanEmail = sanitize(email);
+      if (!cleanEmail) return res.status(400).json({ message: "Email cannot be empty" });
+      updateData.email = cleanEmail.toLowerCase();
+    }
+
+    // Optional fields - allow clearing them by sending empty string or whitespace
+    if (bio !== undefined) updateData.bio = sanitize(bio, true);
+    if (location !== undefined) updateData.location = sanitize(location, true);
+    if (profilePhoto !== undefined) updateData.profilePhoto = profilePhoto;
+
+    // Complex fields
+    if (skills !== undefined) updateData.skills = skills;
+    if (links !== undefined) updateData.links = links;
+    if (mentorProfile !== undefined) updateData.mentorProfile = mentorProfile;
+    if (interests !== undefined) updateData.interests = interests;
+
+    // Remove any undefined keys from updateData (double check)
+    Object.keys(updateData).forEach(key => updateData[key] === undefined && delete updateData[key]);
+
+    // 3️⃣ ATOMIC UPDATE WITH VALIDATION
     const updatedUser = await User.findByIdAndUpdate(
       req.params.id,
       { $set: updateData },
-      { new: true }
+      { new: true, runValidators: true } // Enforce schema rules
     )
       .populate("skills", "name")
       .populate("mentorProfile.expertise", "name")
@@ -203,7 +259,7 @@ exports.uploadProfilePhoto = async (req, res) => {
     const user = await User.findByIdAndUpdate(
       req.user._id,
       { profilePhoto: req.file.path },
-      { new: true }
+      { new: true, runValidators: true }
     ).select("-password");
 
     res.json({ user, message: "Profile photo updated successfully" });

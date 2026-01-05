@@ -162,17 +162,25 @@ exports.verifyOTP = async (req, res) => {
     if (!user.otp || !user.otp.code || user.otp.expiresAt < new Date())
       return res.status(400).json({ message: "OTP expired or invalid" });
 
+    // Verify OTP
     const isValid = await bcrypt.compare(otp, user.otp.code);
     if (!isValid) return res.status(400).json({ message: "Invalid OTP" });
 
-    user.isVerified = true;
-    user.otp = undefined;
+    // Prepare atomic update
+    const updateData = {
+      isVerified: true,
+      otp: undefined,
+    };
 
     // Developers approved immediately, mentors remain pending
-    if (user.role === "developer") user.status = "approved";
-    if (user.role === "mentor") user.status = "pending";
+    if (user.role === "developer") updateData.status = "approved";
+    if (user.role === "mentor") updateData.status = "pending";
 
-    await user.save();
+    // ✅ FIX: Use atomic update instead of save()
+    await User.findByIdAndUpdate(user._id, updateData, {
+      new: true,
+      runValidators: false, // Prevent validation errors on legacy data
+    });
 
     res.status(200).json({
       message: "OTP verified successfully",
@@ -208,9 +216,12 @@ exports.login = async (req, res) => {
     // Generate both access and refresh tokens
     const { accessToken, refreshToken } = generateToken(res, user._id, user.role);
 
-    // Save refresh token to database for validation
-    user.refreshToken = refreshToken;
-    await user.save();
+    // ✅ FIX: Use atomic update instead of save() to prevent 500 errors
+    await User.findByIdAndUpdate(
+      user._id,
+      { refreshToken },
+      { new: true, runValidators: false }
+    );
 
     res.status(200).json({
       message: "Login successful",
@@ -322,9 +333,12 @@ exports.refreshToken = async (req, res) => {
     // Generate new tokens (token rotation for security)
     const { accessToken, refreshToken: newRefreshToken } = generateToken(res, user._id, user.role);
 
-    // Update refresh token in database
-    user.refreshToken = newRefreshToken;
-    await user.save();
+    // ✅ FIX: Use atomic update for token rotation
+    await User.findByIdAndUpdate(
+      user._id,
+      { refreshToken: newRefreshToken },
+      { new: true, runValidators: false }
+    );
 
     res.status(200).json({
       message: "Token refreshed successfully",
