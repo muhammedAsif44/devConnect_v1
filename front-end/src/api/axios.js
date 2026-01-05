@@ -52,7 +52,7 @@ api.interceptors.response.use(
       // 1. NEVER refresh if the failed request was login, refresh-token, or logout
       //    (Prevents infinite loops on these endpoints)
       const url = originalRequest.url || "";
-      if (url.includes("/auth/login") || url.includes("/auth/refresh-token") || url.includes("/auth/logout")) {
+      if (url.includes("/auth/login") || url.includes("/auth/refresh-token") || url.includes("/auth/logout") || url.includes("/auth/profile")) {
         return Promise.reject(error);
       }
 
