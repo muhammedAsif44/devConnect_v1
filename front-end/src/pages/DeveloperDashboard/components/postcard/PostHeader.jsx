@@ -2,17 +2,23 @@ import React, { useState } from "react";
 import { MoreHorizontal, Pencil, Trash2, Flag } from "lucide-react";
 import PremiumBadge from "../../../../components/shared/PremiumBadge";
 import MentorBadge from "../../../../components/shared/MentorBadge";
+import UserProfileModal from "../../../../components/UserProfileModal";
 
 const PostHeader = ({ userId, timeAgo, isOwner, onEdit, onDelete, onReport }) => {
   const [showMenu, setShowMenu] = useState(false);
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
 
   const getInitials = (name) =>
     name ? name.split(" ").map((n) => n[0]).join("").toUpperCase() : "U";
 
+  const handleViewProfile = () => {
+    setProfileModalOpen(true);
+  };
+
   return (
     <div className="flex justify-between items-start p-4 md:p-6 pb-3">
       <div className="flex items-center space-x-3 flex-1 min-w-0">
-        <div className="relative group cursor-pointer">
+        <div onClick={handleViewProfile} className="relative group cursor-pointer">
           <div className="w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center text-sm md:text-base font-semibold text-white shadow-sm overflow-hidden bg-gradient-to-br from-sky-400 to-blue-500 flex-shrink-0 ring-2 ring-transparent group-hover:ring-sky-300 transition-all duration-200">
             {userId?.profilePhoto ? (
               <img
@@ -33,7 +39,7 @@ const PostHeader = ({ userId, timeAgo, isOwner, onEdit, onDelete, onReport }) =>
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap mb-1">
-            <p className="text-sm md:text-base font-semibold text-gray-900 hover:text-sky-600 hover:underline transition-all cursor-pointer truncate">
+            <p onClick={handleViewProfile} className="text-sm md:text-base font-semibold text-gray-900 hover:text-sky-600 hover:underline transition-all cursor-pointer truncate">
               {userId?.name || "Unknown User"}
             </p>
             {userId && (
@@ -101,6 +107,16 @@ const PostHeader = ({ userId, timeAgo, isOwner, onEdit, onDelete, onReport }) =>
           </>
         )}
       </div>
+
+      {/* User Profile Modal */}
+      {profileModalOpen && (
+        <UserProfileModal
+          userId={userId?._id}
+          initialData={userId}
+          isOpen={profileModalOpen}
+          onClose={() => setProfileModalOpen(false)}
+        />
+      )}
     </div>
   );
 };
