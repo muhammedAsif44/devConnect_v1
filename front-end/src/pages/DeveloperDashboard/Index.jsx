@@ -44,11 +44,15 @@ export default function DeveloperDashboard() {
   const [searchParams] = useSearchParams();
   const { fetchUserProfile, user } = useAuthStore();
 
-  // Check for userId in URL query params to auto-open chat
+  // Check for userId or section in URL query params to auto-open chat or specific section
   useEffect(() => {
     const userIdParam = searchParams.get('userId');
+    const sectionParam = searchParams.get('section');
+
     if (userIdParam) {
       setActiveSlug('messages');
+    } else if (sectionParam && iconMap[sectionParam]) {
+      setActiveSlug(sectionParam);
     }
   }, [searchParams]);
 

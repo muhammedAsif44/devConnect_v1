@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Search, Loader2, Users, UserSearch, Filter } from "lucide-react";
 import { searchUsers } from "../../api/users";
 import MentorDeveloperCard from "../../components/MentorDeveloperCard";
@@ -9,10 +10,18 @@ const FindMentorsUsers = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [roleFilter, setRoleFilter] = useState("mentor");
+  const [searchParams] = useSearchParams();
+  const [roleFilter, setRoleFilter] = useState(searchParams.get("role") || "mentor");
 
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedUserId] = useState(null);
+
+  useEffect(() => {
+    const roleFromUrl = searchParams.get("role");
+    if (roleFromUrl && (roleFromUrl === "mentor" || roleFromUrl === "developer")) {
+      setRoleFilter(roleFromUrl);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     fetchUsers();
@@ -71,11 +80,10 @@ const FindMentorsUsers = () => {
                 onClick={() => {
                   setRoleFilter("mentor");
                 }}
-                className={`px-5 py-2 rounded-md font-semibold text-sm transition-all flex items-center gap-2 ${
-                  roleFilter === "mentor"
+                className={`px-5 py-2 rounded-md font-semibold text-sm transition-all flex items-center gap-2 ${roleFilter === "mentor"
                     ? "bg-white text-blue-600 shadow-sm"
                     : "text-gray-600 hover:text-gray-900"
-                }`}
+                  }`}
               >
                 <Users className="w-4 h-4" />
                 Mentors
@@ -84,11 +92,10 @@ const FindMentorsUsers = () => {
                 onClick={() => {
                   setRoleFilter("developer");
                 }}
-                className={`px-5 py-2 rounded-md font-semibold text-sm transition-all flex items-center gap-2 ${
-                  roleFilter === "developer"
+                className={`px-5 py-2 rounded-md font-semibold text-sm transition-all flex items-center gap-2 ${roleFilter === "developer"
                     ? "bg-white text-blue-600 shadow-sm"
                     : "text-gray-600 hover:text-gray-900"
-                }`}
+                  }`}
               >
                 <UserSearch className="w-4 h-4" />
                 Developers

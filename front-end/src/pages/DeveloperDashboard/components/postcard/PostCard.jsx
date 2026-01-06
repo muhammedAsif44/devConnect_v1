@@ -112,7 +112,7 @@ const PostCard = ({ post, currentUserId, onDelete, onUpdate }) => {
     if (!commentText.trim()) return;
     try {
       const res = await addComment(_id, commentText);
-      setComments((prev) => [...prev, res.data]); 
+      setComments((prev) => [...prev, res.data]);
       setCommentText("");
       setShowCommentInput(true);
       setShowAllComments(true);
@@ -136,18 +136,18 @@ const PostCard = ({ post, currentUserId, onDelete, onUpdate }) => {
   return (
     <>
       {/* Post Card Container: Removed max-w-4xl to increase size */}
-      <div 
+      <div
         className="
           bg-white 
           rounded-xl 
           shadow-lg 
           border border-gray-100 
           w-full 
-          p-6 
+          p-4 
           mx-auto 
           transition-all duration-300 ease-in-out
           hover:shadow-xl hover:border-blue-100 
-          md:p-8
+          md:p-5
         "
       >
         {/* Post Header (Profile, Name, Time, and Options Dropdown) */}
@@ -159,7 +159,7 @@ const PostCard = ({ post, currentUserId, onDelete, onUpdate }) => {
           onDelete={handleDelete}
           onReport={() => setShowReportModal(true)}
         />
-        
+
         {/* Skills/Tags (Slightly separated) */}
         <div className="mt-2 mb-3">
           <PostSkills skills={userId?.skills} />
@@ -167,14 +167,14 @@ const PostCard = ({ post, currentUserId, onDelete, onUpdate }) => {
 
         {/* Post Content */}
         <PostContent content={postContent} />
-        
+
         {/* Post Image */}
         <PostImage
           imageUrl={postImage}
           showFullImage={showFullImage}
           setShowFullImage={setShowFullImage}
         />
-        
+
         {/* Hashtags */}
         <PostHashtags hashtags={hashtags} />
 
@@ -193,7 +193,7 @@ const PostCard = ({ post, currentUserId, onDelete, onUpdate }) => {
             setShowAllComments={setShowAllComments}
           />
         </div>
-        
+
         {/* Comments Section */}
         <PostComments
           comments={comments}

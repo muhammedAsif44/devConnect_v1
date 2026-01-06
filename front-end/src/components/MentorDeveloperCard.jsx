@@ -17,7 +17,7 @@ import { sendFriendRequest } from "../api/friendRequestApi";
 import Modal from "../pages/DeveloperDashboard/components/Modal";
 import UserProfileModal from "./UserProfileModal";
 import PremiumBadge from "./shared/PremiumBadge";
-import MentorBadge from "./shared/MentorBadge";  
+import MentorBadge from "./shared/MentorBadge";
 
 const MentorDeveloperCard = ({ user, onUpdate }) => {
   const navigate = useNavigate();
@@ -44,14 +44,14 @@ const MentorDeveloperCard = ({ user, onUpdate }) => {
       setIsFollowing(true);
       setFollowersCount(res.followersCount);
     }
-    onUpdate && onUpdate();
+    // onUpdate && onUpdate(); // Removed to prevent full list re-fetch (optimistic UI)
   };
 
   const handleSendRequest = async () => {
     await sendFriendRequest(user._id, requestMessage);
     setConnectionStatus("pending");
     setShowRequestModal(false);
-    onUpdate && onUpdate();
+    // onUpdate && onUpdate(); // Removed to prevent full list re-fetch (optimistic UI)
   };
 
   const skillColors = [
@@ -68,7 +68,7 @@ const MentorDeveloperCard = ({ user, onUpdate }) => {
   const handleViewProfile = (id) => {
     setProfileModalOpen(true);
     setModalUserId(id);
-    setModalUserData(user);  
+    setModalUserData(user);
   };
 
   return (
@@ -160,11 +160,10 @@ const MentorDeveloperCard = ({ user, onUpdate }) => {
               </button>
               <button
                 onClick={handleFollowToggle}
-                className={`flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg font-semibold text-xs transition-all active:scale-95 shadow-sm ${
-                  isFollowing
+                className={`flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg font-semibold text-xs transition-all active:scale-95 shadow-sm ${isFollowing
                     ? "bg-gray-100 text-gray-700 hover:bg-gray-200"
                     : "bg-blue-50 text-[#032f60] border border-[#032f60]/20 hover:bg-blue-100"
-                }`}
+                  }`}
               >
                 {isFollowing ? (
                   <>
@@ -184,13 +183,12 @@ const MentorDeveloperCard = ({ user, onUpdate }) => {
             <button
               onClick={() => connectionStatus === "none" && setShowRequestModal(true)}
               disabled={connectionStatus !== "none"}
-              className={`w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg font-semibold text-xs transition-all shadow-sm ${
-                connectionStatus === "pending"
+              className={`w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg font-semibold text-xs transition-all shadow-sm ${connectionStatus === "pending"
                   ? "bg-gray-100 text-gray-500 cursor-not-allowed"
                   : connectionStatus === "accepted"
-                  ? "bg-green-50 text-green-700 border border-green-200 hover:bg-green-100"
-                  : "bg-white text-[#032f60] border border-[#032f60] hover:bg-[#032f60] hover:text-white active:scale-95"
-              }`}
+                    ? "bg-green-50 text-green-700 border border-green-200 hover:bg-green-100"
+                    : "bg-white text-[#032f60] border border-[#032f60] hover:bg-[#032f60] hover:text-white active:scale-95"
+                }`}
             >
               {connectionStatus === "pending" ? (
                 <>

@@ -82,7 +82,6 @@ export default function SlotBadge({ slot, day, mentorId, availabilityId }) {
         toast.error(err?.response?.data?.message || "Failed to book session.");
       }
     } finally {
-      if (!isSyncing) await fetchMentors();
       setIsBooking(false);
     }
   };
@@ -91,20 +90,18 @@ export default function SlotBadge({ slot, day, mentorId, availabilityId }) {
   if (slot.isBooked) {
     return (
       <div
-        className={`relative rounded-lg px-3 py-2.5 text-xs border select-none transition-all flex flex-col items-start justify-between ${
-          bookedByYou
+        className={`relative rounded-lg px-3 py-2.5 text-xs border select-none transition-all flex flex-col items-start justify-between ${bookedByYou
             ? "bg-green-50 border-green-300 text-green-900 shadow-sm"
             : "bg-gray-50 border-gray-200 text-gray-500 cursor-not-allowed"
-        }`}
+          }`}
       >
         <div>
           <span className="font-semibold">{slotDay}</span>
           <div className="text-[10px] opacity-75">{slotTime}</div>
         </div>
         <span
-          className={`mt-2 text-[11px] font-semibold px-2 py-1 rounded ${
-            bookedByYou ? "bg-green-600 text-white" : "bg-gray-300 text-gray-700"
-          }`}
+          className={`mt-2 text-[11px] font-semibold px-2 py-1 rounded ${bookedByYou ? "bg-green-600 text-white" : "bg-gray-300 text-gray-700"
+            }`}
         >
           {bookedByYou ? "Booked (Yours)" : "Booked"}
         </span>
@@ -117,22 +114,20 @@ export default function SlotBadge({ slot, day, mentorId, availabilityId }) {
     <button
       onClick={handleBook}
       disabled={isBooking || isSyncing || !isUserReady}
-      className={`relative rounded-lg px-3 py-2.5 text-left border transition-all flex flex-col justify-between duration-200 ${
-        isBooking || isSyncing || !isUserReady
+      className={`relative rounded-lg px-3 py-2.5 text-left border transition-all flex flex-col justify-between duration-200 ${isBooking || isSyncing || !isUserReady
           ? "bg-gray-50 border-gray-200 cursor-not-allowed opacity-60"
           : "bg-white border-blue-200 hover:border-blue-400 hover:shadow-md hover:bg-blue-50"
-      }`}
+        }`}
     >
       <div>
         <span className="font-semibold text-gray-900 text-xs">{slotDay}</span>
         <div className="text-[10px] text-gray-600">{slotTime}</div>
       </div>
       <span
-        className={`mt-2 text-[11px] font-semibold px-2 py-1 rounded ${
-          isBooking
+        className={`mt-2 text-[11px] font-semibold px-2 py-1 rounded ${isBooking
             ? "bg-gray-300 text-gray-700"
             : "bg-green-600 hover:bg-green-700 text-white transition-colors"
-        }`}
+          }`}
       >
         {isBooking ? "Booking..." : "Book"}
       </span>
