@@ -2,6 +2,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import { useChatSocket } from "../../hooks/useChatSocket";
+import { socket } from "../../socket/socket";
 import { useChatStore } from "../../ZustandStore/chatStore";
 import useAuthStore from "../../ZustandStore/useAuthStore";
 import { useFriends } from "../../hooks/useFriendRequests";
@@ -38,7 +39,7 @@ export default function ChatPage() {
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
     const userIdParam = urlParams.get('userId');
-    
+
     if (userIdParam && !selectedFriend) {
       const fetchAndSelectUser = async () => {
         try {
@@ -51,7 +52,7 @@ export default function ChatPage() {
           showError("Failed to load user for chat");
         }
       };
-      
+
       fetchAndSelectUser();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -59,17 +60,17 @@ export default function ChatPage() {
 
   const usersMap = useMemo(() => {
     const map = {};
-    
+
     for (const friend of friends) {
       map[friend._id] = friend;
     }
-    
+
     if (isPremium) {
       for (const usr of allUsers) {
         map[usr._id] = usr;
       }
     }
-    
+
     if (user) {
       map[user._id] = user;
     }
@@ -97,23 +98,42 @@ export default function ChatPage() {
   // NOTE: joinRoom and clearUnread intentionally excluded from dependencies
   // They are stable socket event emitters and including them would cause infinite loop
   // when conversation changes
+  // Handle joining room on conversation change AND on socket reconnection
   useEffect(() => {
     if (!activeConversationId) return;
-    
+
+    // Join the room immediately
     joinRoom(activeConversationId);
-    
+
+    // Also re-join if the socket reconnects while we are on this page
+    const handleReconnect = () => {
+      console.log("Socket reconnected, re-joining room:", activeConversationId);
+      joinRoom(activeConversationId);
+    };
+
+    const handleConnectError = (err) => {
+      console.error("Socket connection error:", err);
+    };
+
+    socket.on("connect", handleReconnect);
+    socket.on("connect_error", handleConnectError);
+
     // Clear unread separately after join completes
     const timer = setTimeout(() => {
       clearUnread(activeConversationId);
-    }, 0);
-    
-    return () => clearTimeout(timer);
+    }, 500); // Slight delay to ensure processing
+
+    return () => {
+      clearTimeout(timer);
+      socket.off("connect", handleReconnect);
+      socket.off("connect_error", handleConnectError);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeConversationId]);
 
   useEffect(() => {
     if (!activeConversationId) return;
-    
+
     // Only load messages if we haven't already
     if (loadedConversations.has(activeConversationId)) {
       return;
@@ -122,23 +142,23 @@ export default function ChatPage() {
     const loadMessages = async () => {
       try {
         const res = await getMessages(activeConversationId);
-        const otherConversationMessages = messages.filter(msg => 
+        const otherConversationMessages = messages.filter(msg =>
           msg.conversationId !== activeConversationId
         );
         const newConversationMessages = res?.messages || [];
         const combinedMessages = [...otherConversationMessages];
-        
+
         for (const newMsg of newConversationMessages) {
           const isDuplicate = combinedMessages.some(
-            existingMsg => 
-              existingMsg._id === newMsg._id && 
+            existingMsg =>
+              existingMsg._id === newMsg._id &&
               existingMsg.conversationId === newMsg.conversationId
           );
           if (!isDuplicate) {
             combinedMessages.push(newMsg);
           }
         }
-        
+
         setMessages(combinedMessages);
         setLoadedConversations(prev => new Set([...prev, activeConversationId]));
       } catch (err) {
@@ -206,7 +226,7 @@ export default function ChatPage() {
 
   const filteredMessages = useMemo(() => {
     if (!activeConversationId) return [];
-    return messages.filter(msg => 
+    return messages.filter(msg =>
       msg.conversationId === activeConversationId
     );
   }, [messages, activeConversationId]);
@@ -256,21 +276,20 @@ export default function ChatPage() {
       <div className="flex flex-1 overflow-hidden gap-1 sm:gap-2 md:gap-4 p-1 sm:p-2 md:p-4 bg-gray-50">
         {/* Mobile sidebar backdrop */}
         {isMobile && sidebarOpen && (
-          <div 
+          <div
             className="fixed inset-0 bg-black/50 z-40"
             onClick={() => setSidebarOpen(false)}
           />
         )}
-        
+
         {/* Sidebar - Always visible, responsive width */}
         <aside
-          className={`${
-            isMobile 
-              ? sidebarOpen 
-                ? "absolute inset-y-0 left-0 w-full max-w-xs sm:max-w-sm z-50" 
-                : "hidden" 
-              : "w-full max-w-xs sm:max-w-sm md:max-w-sm"
-          } bg-white rounded-2xl sm:rounded-3xl shadow-lg overflow-hidden transition-all duration-300 flex flex-col`}
+          className={`${isMobile
+            ? sidebarOpen
+              ? "absolute inset-y-0 left-0 w-full max-w-xs sm:max-w-sm z-50"
+              : "hidden"
+            : "w-full max-w-xs sm:max-w-sm md:max-w-sm"
+            } bg-white rounded-2xl sm:rounded-3xl shadow-lg overflow-hidden transition-all duration-300 flex flex-col`}
         >
           {isMobile && sidebarOpen && (
             <div className="p-2 bg-gray-50 border-b border-gray-200 flex justify-end">
