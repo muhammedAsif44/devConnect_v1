@@ -6,7 +6,7 @@ const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 const SOCKET_URL = API_URL.replace(/\/api\/?$/, "");
 
 export const socket = io(SOCKET_URL, {
-  transports: ["websocket"],
+  transports: ["polling", "websocket"],
   reconnectionAttempts: 5,
   withCredentials: true,
   autoConnect: false, // important - connect manually after login
