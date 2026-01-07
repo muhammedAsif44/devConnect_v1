@@ -51,6 +51,8 @@ const io = new Server(server, {
   },
 });
 
+app.set("trust proxy", 1); // Trust Nginx proxy for secure cookies
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
