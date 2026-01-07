@@ -1,6 +1,11 @@
 import { io } from "socket.io-client";
 
-export const socket = io("http://localhost:5000", {
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
+// Ensure we connect to the root URL, not the specific API endpoint if configured that way
+const SOCKET_URL = API_URL.replace(/\/api\/?$/, "");
+
+export const socket = io(SOCKET_URL, {
   transports: ["websocket"],
   reconnectionAttempts: 5,
   withCredentials: true,
