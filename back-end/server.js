@@ -107,7 +107,7 @@ const chatSocket = require("./socket/chatSocket");
 chatSocket(io); // initialize chat socket logic
 
 // =======================
-// 🚀 Start Server
+//  Start Server
 // =======================
 const PORT = process.env.PORT || 5000;
 connectDB()
