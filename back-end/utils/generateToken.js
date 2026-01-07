@@ -21,13 +21,16 @@ const generateTokens = (res, userId, role) => {
   );
 
   // Determine environment
-  const isProduction = process.env.NODE_ENV === "production";
+  // Default to secure/none unless explicitly in development mode
+  const isDevelopment = process.env.NODE_ENV === "development";
 
   // Common cookie options
   const cookieOptions = {
     httpOnly: true,
-    secure: isProduction, // Secure is REQUIRED for SameSite=None
-    sameSite: isProduction ? "none" : "strict", // Cross-site requires None
+    // Start of Fix: Always strict/secure for non-development to support cross-site
+    secure: !isDevelopment, // Secure is REQUIRED for SameSite=None
+    sameSite: isDevelopment ? "lax" : "none", // Cross-site requires None
+    // End of Fix
     path: "/", // Ensure path is root
   };
 
