@@ -37,6 +37,9 @@ export default function Login() {
 
   const handleSubmit = async (values, { setSubmitting, setErrors }) => {
     try {
+      // ✅ FIX: Clear any stuck toasts from previous pages (e.g., signup verification)
+      toast.dismiss();
+
       const user = await login(values);
       // Login successful, toast already handled in store (or here)
       // Immediate redirect based on API response

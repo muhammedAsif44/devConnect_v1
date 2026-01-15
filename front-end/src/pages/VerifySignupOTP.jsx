@@ -22,12 +22,23 @@ export default function VerifySignupOTP() {
     try {
       await api.post("/auth/verify-otp", { email: user.email, otp: values.otp });
 
-      toast.success("Signup verified successfully! Please login."); // ✅ replaced alert
-      navigate("/login");
+      // ✅ FIX: Dismiss any existing toasts before showing new one
+      toast.dismiss();
+
+      // ✅ FIX: Use shorter duration (2 seconds) so it doesn't persist on next page
+      toast.success("Signup verified successfully! Redirecting to login...", {
+        duration: 2000,
+        id: 'verify-success' // unique ID prevents duplicates
+      });
+
+      // ✅ FIX: Small delay before navigation so user sees the toast
+      setTimeout(() => {
+        navigate("/login");
+      }, 500);
     } catch (err) {
       const msg = err.response?.data?.message || "Invalid OTP";
       setError(msg);
-      toast.error(msg); // ✅ show error with toast
+      toast.error(msg, { duration: 3000 });
     } finally {
       setSubmitting(false);
     }

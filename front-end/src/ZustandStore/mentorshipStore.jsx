@@ -42,7 +42,7 @@ const useMentorshipStore = create((set, get) => ({
         sessionType: 'one-on-one',
       };
 
-      // console.log("heyheyheye");
+
       const res = await api.post("/sessions", payload, { withCredentials: true });
       // toast.success("Session booked!");
 
@@ -116,7 +116,7 @@ const useMentorshipStore = create((set, get) => ({
 
   // ✅ Fetch sessions for current user
   fetchBookings: async (userId) => {
-    console.log(userId)
+
     set({ loadingBookings: true, error: null });
     try {
       const res = await api.get(`/sessions/${userId}`, { withCredentials: true });

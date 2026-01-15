@@ -18,6 +18,7 @@ import {
 import { showError } from "../../utils/toastManager";
 import Shimmer from "../../components/Shimmer";
 import { getUserProfile } from "../../api/users";
+import { useCallStore } from "../../ZustandStore/callStore";
 
 export default function ChatPage() {
   const { user, isPremium } = useAuthStore();
@@ -34,6 +35,7 @@ export default function ChatPage() {
 
   const { messages, setMessages, onlineUsers, typingUsers, clearUnread } = useChatStore();
   const { sendMessage, joinRoom, emitTyping, emitStopTyping } = useChatSocket(userId);
+  const { startVideoCall } = useCallStore();
 
   // Auto-select user from URL query parameter
   useEffect(() => {
@@ -107,7 +109,7 @@ export default function ChatPage() {
 
     // Also re-join if the socket reconnects while we are on this page
     const handleReconnect = () => {
-      console.log("Socket reconnected, re-joining room:", activeConversationId);
+
       joinRoom(activeConversationId);
     };
 
@@ -330,7 +332,11 @@ export default function ChatPage() {
                     </svg>
                   </button>
                 )}
-                <ChatHeader onlineUsers={onlineUsers} selectedFriend={selectedFriend} />
+                <ChatHeader
+                  onlineUsers={onlineUsers}
+                  selectedFriend={selectedFriend}
+                  onVideoCall={() => startVideoCall(selectedFriend)}
+                />
               </div>
 
               {/* Chat Window */}

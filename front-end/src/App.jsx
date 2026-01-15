@@ -14,6 +14,8 @@ import ProfilePage from "./pages/Profile/ProfilePage";
 
 import useAuthStore from "./ZustandStore/useAuthStore";
 
+import CallManager from "./components/CallManager";
+
 function App() {
   const { checkAuth } = useAuthStore();
 
@@ -23,6 +25,7 @@ function App() {
 
   return (
     <BrowserRouter>
+      <CallManager />
       <Toaster
         position="top-right"
         reverseOrder={false}

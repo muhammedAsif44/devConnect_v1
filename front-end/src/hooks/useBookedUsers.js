@@ -13,12 +13,12 @@ export const useBookedUsers = (userId) => {
       setLoading(true);
       setError(null);
       try {
-        console.log("🔍 Fetching booked users for mentor:", userId);
+
         // Get all sessions where this mentor received bookings
         const res = await api.get(`/sessions/booked-users/${userId}`, {
           withCredentials: true,
         });
-        console.log("✅ Booked users response:", res.data);
+
         setBookedUsers(res.data.users || []);
       } catch (err) {
         console.error("❌ Failed to fetch booked users:", err);

@@ -9,7 +9,7 @@ import Shimmer from "../../../../components/Shimmer";
 export default function BookMentorship() {
   const { mentors, loadingMentors, error, fetchMentors } = useMentorshipStore();
   const { user, fetchUserProfile } = useAuthStore();
- 
+
   useEffect(() => {
     fetchUserProfile(); // Always fetch user profile on mount
   }, [fetchUserProfile]);
@@ -17,7 +17,7 @@ export default function BookMentorship() {
   useEffect(() => {
     if (user?._id) fetchMentors();
   }, [fetchMentors, user?._id]);
-  
+
   // Show toast notification when user is not premium
   useEffect(() => {
     if (user && !user.isPremium && user.role !== "mentor") {
@@ -28,8 +28,7 @@ export default function BookMentorship() {
     }
   }, [user]);
 
-  console.log(mentors);
-  console.log('[BookMentorship] user:', user);
+
 
   if (!user?._id) {
     return (
@@ -51,7 +50,7 @@ export default function BookMentorship() {
               Find Expert Mentors
             </h2>
             <p className="text-white/80 text-sm sm:text-base max-w-2xl leading-relaxed">
-              Connect with experienced professionals who can guide your career growth, 
+              Connect with experienced professionals who can guide your career growth,
               provide technical insights, and help you achieve your development goals
             </p>
           </div>
@@ -78,7 +77,7 @@ export default function BookMentorship() {
             Browse and connect with our expert mentors
           </p>
         </div>
-        
+
         <div className="flex items-center gap-4">
           <div className="bg-blue-50 text-blue-700 px-3 py-2 rounded-lg border border-blue-100">
             <span className="text-sm font-medium">
@@ -118,7 +117,7 @@ export default function BookMentorship() {
           </div>
           <h3 className="text-lg font-semibold text-gray-800 mb-2">Unable to load mentors</h3>
           <p className="text-gray-600 mb-4">{error}</p>
-          <button 
+          <button
             onClick={() => fetchMentors()}
             className="bg-[#032f60] text-white px-6 py-2 rounded-lg hover:bg-[#032f60]/90 transition-colors"
           >

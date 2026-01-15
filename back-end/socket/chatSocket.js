@@ -7,14 +7,15 @@ module.exports = (io) => {
   io.on("connection", (socket) => {
     console.log("⚡ New client connected:", socket.id);
 
- socket.on("userOnline", (userId) => {
-  const isNewUser = !onlineUsers.has(userId);
-  onlineUsers.set(userId, socket.id);
-  if (isNewUser) {
-    io.emit("onlineUsers", Array.from(onlineUsers.keys())); // Broadcast only when a new user comes online
-    console.log(`✅ User ${userId} is online`);
-  }
-});
+    socket.on("userOnline", (userId) => {
+      const isNewUser = !onlineUsers.has(userId);
+      onlineUsers.set(userId, socket.id);
+      socket.userId = userId; // Store userId in socket session
+      if (isNewUser) {
+        io.emit("onlineUsers", Array.from(onlineUsers.keys())); // Broadcast only when a new user comes online
+        console.log(`✅ User ${userId} is online`);
+      }
+    });
 
     // User joins a 1:1 conversation room by conversationId
     socket.on("joinRoom", (conversationId) => {
@@ -91,6 +92,74 @@ module.exports = (io) => {
           console.log(`  User ${userId} disconnected`);
           break;
         }
+      }
+    });
+
+    // ===========================
+    // 📞 WebRTC Signaling Events
+    // ===========================
+
+    // 1. Caller initiates a call
+    socket.on("call-user", (data) => {
+      const { toUserId, offer } = data;
+      const targetSocketId = onlineUsers.get(toUserId);
+      console.log(`📞 call-user received from ${socket.userId} to ${toUserId}. Target Socket: ${targetSocketId}`);
+
+      if (targetSocketId) {
+        io.to(targetSocketId).emit("incoming-call", {
+          fromUserId: socket.userId,
+          offer,
+        });
+        console.log(`✅ Emitted incoming-call to ${targetSocketId}`);
+      } else {
+        console.warn(`⚠️ User ${toUserId} is NOT online or not in map.`);
+      }
+    });
+
+    // 2. Caller sends an Offer (Alternate flow if using separate offer event)
+    socket.on("webrtc-offer", (data) => {
+      const { toUserId, offer } = data;
+      const targetSocketId = onlineUsers.get(toUserId);
+      if (targetSocketId) {
+        socket.to(targetSocketId).emit("webrtc-offer", {
+          fromUserId: socket.userId, // OR passed from data
+          offer,
+        });
+      }
+    });
+
+    // 3. Callee sends an Answer
+    socket.on("webrtc-answer", (data) => {
+      const { toUserId, answer } = data;
+      const targetSocketId = onlineUsers.get(toUserId);
+      if (targetSocketId) {
+        io.to(targetSocketId).emit("webrtc-answer", {
+          fromUserId: socket.userId, // OR passed from data
+          answer,
+        });
+      }
+    });
+
+    // 4. Exchange ICE Candidates
+    socket.on("webrtc-ice-candidate", (data) => {
+      const { toUserId, candidate } = data;
+      const targetSocketId = onlineUsers.get(toUserId);
+      if (targetSocketId) {
+        io.to(targetSocketId).emit("webrtc-ice-candidate", {
+          fromUserId: socket.userId,
+          candidate,
+        });
+      }
+    });
+
+    // 5. End Call
+    socket.on("call-end", (data) => {
+      const { toUserId } = data;
+      const targetSocketId = onlineUsers.get(toUserId);
+      if (targetSocketId) {
+        io.to(targetSocketId).emit("call-ended", {
+          fromUserId: socket.userId,
+        });
       }
     });
   });

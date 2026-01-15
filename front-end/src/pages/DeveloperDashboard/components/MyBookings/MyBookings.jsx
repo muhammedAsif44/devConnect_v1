@@ -38,7 +38,7 @@ export default function MyBookings() {
     }
   }, [user]);
 
-  console.log('[MyBookings] user:', user, 'initialized:', initialized);
+
 
   // ✅ Convert date safely
   const formatDateForSearch = (dateValue, altValue) => {
@@ -59,7 +59,7 @@ export default function MyBookings() {
       return "";
     }
   };
-   console.log(user?._id)
+
 
   const filtered = bookings
     .filter((session) => !!session)
@@ -132,7 +132,7 @@ export default function MyBookings() {
             Filter and manage your mentorship sessions
           </p>
         </div>
-        
+
         <div className="flex items-center gap-4">
           <div className="bg-blue-50 text-blue-700 px-3 py-2 rounded-lg border border-blue-100">
             <span className="text-sm font-medium">
@@ -179,8 +179,8 @@ export default function MyBookings() {
             {filter.search || filter.status ? "No matching sessions found" : "No bookings yet"}
           </h3>
           <p className="text-gray-600 max-w-md mx-auto">
-            {filter.search || filter.status 
-              ? "Try adjusting your search or filter criteria to find your sessions." 
+            {filter.search || filter.status
+              ? "Try adjusting your search or filter criteria to find your sessions."
               : "Book your first mentorship session to get started with personalized guidance."}
           </p>
         </div>
